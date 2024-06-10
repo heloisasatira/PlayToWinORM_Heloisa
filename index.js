@@ -38,10 +38,10 @@ app.get("/", (req, res) => {
     res.render(`home`);
 });
 
-app.get("/usuarios", (req, res) => {
-    res.render(`usuarios`);
+app.get("/usuarios", async (req, res) => {
+    const usuarios = await Usuario.findAll({raw: true})
+    res.render(`usuarios`, { usuarios });
 });
-
 
 app.post("/usuarios/novo", async (req, res) => {
     const nickname = req.body.nickname;
@@ -51,10 +51,16 @@ app.post("/usuarios/novo", async (req, res) => {
         nickname,
         nome,
     };
+    const usuario = await Usuario.create(dadosUsuario);
+    res.send("Usuário inserido sob o id " + usuario.id);
 });
 
-const usuario = await Usuario.create(dadosUsuario);
-res.sent("Usuário inserido sob o id " + usuario.id);
+app.get("/usuarios/:id/atualizar", (req, res)=>{
+    const id = req.params.id;
+    const usuario = Usuario.findByPk(id, {raw: true});
+    
+    res.render("formUsuario", { usuario });
+});
 
 app.listen(8000, () => {
     console.log("Server rodando na porta 8000¹");
